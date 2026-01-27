@@ -5,6 +5,7 @@ namespace Drupal\mz_crud\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\drupal_helper\DrupalHelper;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\user\Entity\User;
 
 /**
  * Class ApiController.
