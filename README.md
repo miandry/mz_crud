@@ -7,7 +7,6 @@ en prenant en charge :
 - Champs standards (title, body, etc.)
 - Paragraphs
 - Media (images, vidéos, fichiers)
-- Utilisation comme backend Headless CMS pour applications mobiles et web
 
 ---
 
@@ -18,12 +17,6 @@ cd web/modules/custom
 git clone https://github.com/miandry/mz_crud.git
 drush en mz_crud -y
 ```
-
-Modules requis :
-- Paragraphs
-- Media
-- REST
-- Serialization
 
 ---
 
@@ -41,12 +34,6 @@ Méthodes d’authentification possibles :
 
 ---
 
-## 🌐 Base URL
-
-```
-/api/mz_crud
-```
-
 Headers communs :
 ```
 Content-Type: application/json
@@ -55,165 +42,128 @@ Accept: application/json
 
 ---
 
-## 📚 LISTE COMPLÈTE DES ENDPOINTS
-
-| Méthode | Endpoint                  | Description |
-|--------|---------------------------|------------|
-| POST   | /api/mz_crud/create       | Créer un contenu |
-| GET    | /api/mz_crud/{id}         | Lire un contenu |
-| GET    | /api/mz_crud/list         | Lister tous les contenus |
-| GET    | /api/mz_crud/list/{type}  | Lister par type de contenu |
-| PUT    | /api/mz_crud/{id}         | Mettre à jour |
-| DELETE | /api/mz_crud/{id}         | Supprimer |
-| POST   | /api/mz_crud/media        | Créer un Media |
-| GET    | /api/mz_crud/media/{id}   | Lire un Media |
-| DELETE | /api/mz_crud/media/{id}   | Supprimer un Media |
-
----
 
 # 🟢 CREATE – Créer un contenu
 
 ```
-POST /api/mz_crud/create
+POST /crud/save
+
 ```
 
 ```json
 {
-  "type": "article",
-  "title": "Article avec Paragraphs et Media",
-  "body": {
-    "value": "Ceci est le contenu principal",
-    "format": "basic_html"
-  },
-  "paragraphs": [
+  "entity_type": "node",
+  "title": "Article avec Paragraphs et taxonomy",
+  "bundle": "article",
+  "field_article_title": "Article 1",
+  "field_categories": [ // champ de reférence de type paragraph
     {
-      "type": "text_block",
-      "fields": {
-        "field_text": {
-          "value": "Ceci est un paragraphe texte",
-          "format": "basic_html"
-        }
-      }
+      "field_type": "type 1",
+      "field_name": "category 1"
     },
     {
-      "type": "image_block",
-      "fields": {
-        "field_image": {
-          "media_id": 5
-        },
-        "field_caption": "Une image principale"
-      }
-    }
-  ]
+      "field_type": "type 2",
+      "field_name": "category 2"
+    },
+  ],
+  "field_color": 3 //tid du taxonomy
 }
 ```
 
 Réponse :
 ```json
 {
-  "status": "success",
-  "node_id": 45
+  "item": 45,
+  "status": true
 }
-```
-
----
-
-# 🔵 READ – Lire un contenu
-
-```
-GET /api/mz_crud/45
-```
-
-```json
-{
-  "id": 45,
-  "type": "article",
-  "title": "Article avec Paragraphs et Media",
-  "body": "Ceci est le contenu principal",
-  "paragraphs": []
-}
-```
-
----
-
-# 📃 LIST – Lister tous les contenus
-
-```
-GET /api/mz_crud/list
-```
-
-```json
-[
-  { "id": 1, "title": "Article 1", "type": "article" },
-  { "id": 2, "title": "Page 1", "type": "page" }
-]
-```
-
----
-
-# 📂 LIST BY TYPE
-
-```
-GET /api/mz_crud/list/article
-```
-
-```json
-[
-  { "id": 1, "title": "Article 1" },
-  { "id": 2, "title": "Article 2" }
-]
 ```
 
 ---
 
 # 🟡 UPDATE
 
-```
-PUT /api/mz_crud/45
-```
-
-```json
-{
-  "title": "Titre mis à jour"
-}
-```
-
----
-
-# ⚫ DELETE
+⚠️ Le node_id (nid) est obligatoire pour l’opération de mise à jour.
 
 ```
-DELETE /api/mz_crud/45
+POST /crud/save
 ```
 
 ```json
 {
-  "status": "deleted",
-  "node_id": 45
+  "entity_type": "node",
+  "title": "Article modifié avec Paragraphs et taxonomy",
+  "bundle": "article",
+  "nid": 12, // requis pour la mise a jour
+  "field_article_title": "Article 1 modifié",
+  "field_categories": [ // champ de reférence de type paragraph
+    {
+      "field_type": "type 1",
+      "field_name": "category 1"
+    },
+    {
+      "field_type": "type 2",
+      "field_name": "category 2"
+    },
+  ],
+  "field_color": 3 //tid du taxonomy
 }
 ```
 
+
 ---
 
-# 🖼 MEDIA – Création
+
+# 🟢 Inscription
+
+Endpoint pour créer un nouvel utilisateur via l’API.
 
 ```
-POST /api/mz_crud/media
+POST /crud/register
 ```
 
-Form-data :
-| Key | Value |
-|------|------|
-| file | fichier |
-| type | image |
-| name | photo |
+```json
+{
+  "name": "username",
+  "pass": "password123"
+}
+```
 
 Réponse :
 ```json
 {
-  "status": "success",
-  "media_id": 5,
-  "url": "/sites/default/files/2026-01/photo.jpg"
+    "status": 1,
+    "name": "username",
+    "token": "c7WhShh8hXkiRyq...",
+    "id": "27"
+}
+```
+
+---
+
+
+# 🟡 Authentification
+
+Endpoint pour authentifier un utilisateur via l’API.
+
+```
+POST /crud/login
+```
+
+```json
+{
+  "name": "username",
+  "password": "password123"
+}
+```
+
+Réponse :
+```json
+{
+    "status": true,
+    "name": "username",
+    "token": "HVfdjAg2T-ElU8cJQXSTnKsd2nvOpjqAtdY31TlQNPg",
+    "roles": ["authenticated"],
+    "id": "27"
 }
 ```
 
@@ -224,7 +174,6 @@ Réponse :
 - Le champ `field_paragraphs` doit être :
   Entity reference revisions → Paragraph
 - Les machine names doivent correspondre exactement à la configuration Drupal.
-- Les Media doivent exister avant d’être utilisés dans les Paragraphs.
 - Toutes les réponses sont en JSON.
 
 ---
